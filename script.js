@@ -1,4 +1,5 @@
 const searchInput = document.getElementById('search');
+const categorySelect = document.getElementById('category-filter');
 const empty = document.getElementById('empty');
 const container = document.getElementById('videos-container');
 
@@ -48,11 +49,10 @@ function renderVideosPage(page = 1) {
 }
 
 function renderPagination(totalPages) {
-  // Borra paginación vieja si existe
   let pagination = document.querySelector('.pagination');
   if (pagination) pagination.remove();
 
-  if (totalPages <= 1) return; // No paginación si solo hay 1 página o menos
+  if (totalPages <= 1) return;
 
   pagination = document.createElement('nav');
   pagination.className = 'pagination';
@@ -60,7 +60,6 @@ function renderPagination(totalPages) {
 
   const ul = document.createElement('ul');
 
-  // Botón "Anterior"
   const prevLi = document.createElement('li');
   if (currentPage > 1) {
     const prevA = document.createElement('a');
@@ -80,7 +79,6 @@ function renderPagination(totalPages) {
   }
   ul.appendChild(prevLi);
 
-  // Botones números páginas
   for (let p = 1; p <= totalPages; p++) {
     const li = document.createElement('li');
     if (p === currentPage) {
@@ -102,7 +100,6 @@ function renderPagination(totalPages) {
     ul.appendChild(li);
   }
 
-  // Botón "Siguiente"
   const nextLi = document.createElement('li');
   if (currentPage < totalPages) {
     const nextA = document.createElement('a');
@@ -128,14 +125,20 @@ function renderPagination(totalPages) {
 
 function filterCards() {
   const q = normalize(searchInput.value);
-  filteredVideos = allVideos.filter(video =>
-    normalize(video.title).includes(q)
-  );
-  currentPage = 1; // reset pag a 1 al filtrar
+  const selectedCategory = categorySelect.value;
+
+  filteredVideos = allVideos.filter(video => {
+    const matchesSearch = normalize(video.title).includes(q);
+    const matchesCategory = selectedCategory === "" || video.tag === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  currentPage = 1;
   renderVideosPage(currentPage);
 }
 
 searchInput.addEventListener('input', filterCards);
+categorySelect.addEventListener('change', filterCards);
 
 function openLinks(event, originalUrl) {
   event.preventDefault();
@@ -144,7 +147,6 @@ function openLinks(event, originalUrl) {
   window.location.href = originalUrl;
 }
 
-// Cargar JSON
 fetch('videos.json')
   .then(res => res.json())
   .then(data => {
