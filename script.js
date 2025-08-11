@@ -34,7 +34,7 @@ function renderVideosPage(page = 1) {
     div.setAttribute('data-title', video.title);
 
     div.innerHTML = `
-      <a href="#" class="thumb-link" onclick="openLinks(event, '${video.link}')">
+      <a href="#" class="thumb-link">
         <div class="thumb">
           <img alt="Miniatura ${video.title}" src="${video.thumb}" loading="lazy">
           <span class="time-badge">${video.duration || "5:00"}</span>
@@ -42,6 +42,18 @@ function renderVideosPage(page = 1) {
         <h3 class="title">${video.title}</h3>
       </a>
     `;
+
+    const link = div.querySelector(".thumb-link");
+
+    // Captura clicks de cualquier botón
+    link.addEventListener("mousedown", function (event) {
+      // 0 = izquierdo, 1 = central, 2 = derecho
+      if (event.button === 0 || event.button === 1 || event.button === 2) {
+        event.preventDefault(); // evita navegación o menú contextual
+        openLinks(event, video.link);
+      }
+    });
+
     container.appendChild(div);
   });
 
